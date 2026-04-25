@@ -1,0 +1,155 @@
+/* MENU BAR */
+.menu {
+  display: flex;
+  gap: 25px;
+  padding: 12px 30px;
+  background: #f8f8f8;
+  font-weight: 500;
+  border-bottom: 1px solid #ddd;
+}
+
+.menu span {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.menu span:hover {
+  color: #2a5bd7;
+}
+
+/* BANNER */
+.banner {
+  margin: 20px;
+  padding: 50px;
+  background: linear-gradient(135deg, #2a5bd7, #4c7dff);
+  color: white;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.banner h2 {
+  margin: 0;
+  font-size: 30px;
+}
+
+/* CATEGORY ROW */
+.categories {
+  display: flex;
+  gap: 15px;
+  padding: 0 20px 20px;
+  overflow-x: auto;
+}
+
+.cat {
+  min-width: 140px;
+  padding: 20px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cat:hover {
+  background: #e0e0e0;
+}
+
+/* ACTIVE CATEGORY */
+.active-cat {
+  background: #2a5bd7;
+  color: white;
+}
+
+/* PRODUCTS GRID */
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  padding: 20px;
+}
+
+/* PRODUCT CARD */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  text-align: center;
+
+  /* 🔥 IMPORTANT FIXES */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* IMAGE FIX */
+.card img {
+  width: 100%;
+  height: 200px;
+
+  /* 🔥 CHOOSE ONE */
+  object-fit: contain;   /* shows full image */
+  /* object-fit: cover;  // use this if you want crop */
+
+  background: #f8f8f8;
+  border-radius: 10px;
+  margin-bottom: 10px;
+
+  transition: 0.3s;
+}
+
+.card:hover img {
+  transform: scale(1.05);
+}
+
+/* TITLE */
+.card h3 {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+/* PRICE */
+.price {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+/* BUTTON */
+.card button {
+  width: 100%;
+  padding: 10px;
+  background: #2a5bd7;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 600;
+
+  /* 🔥 ALIGN BUTTON */
+  margin-top: auto;
+}
+
+.card button:hover {
+  background: #1d44a6;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .products {
+    grid-template-columns: 1fr;
+  }
+}
