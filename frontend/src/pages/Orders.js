@@ -11,15 +11,16 @@ function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await API.get("/orders", {
+      const res = await API.get("/api/orders", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
       });
 
       setOrders(res.data || []);
+
     } catch (err) {
-      console.log(err);
+      console.log("❌ FETCH ORDERS ERROR:", err.response?.data || err);
     }
   };
 
@@ -33,10 +34,10 @@ function Orders() {
 
       {orders.map((order) => {
 
-        // 🔥 SAFE TOTAL (fallback if missing)
+        // 🔥 SAFE TOTAL
         const total =
           order.total ??
-          order.items.reduce((acc, item) => {
+          (order.items || []).reduce((acc, item) => {
             if (!item.product) return acc;
             return acc + item.product.price * item.quantity;
           }, 0);
@@ -59,7 +60,6 @@ function Orders() {
             <div className="order-items">
               {(order.items || []).map((item, index) => {
 
-                // 🔥 skip broken items
                 if (!item.product) return null;
 
                 return (

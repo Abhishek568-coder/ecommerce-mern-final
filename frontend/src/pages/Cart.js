@@ -9,7 +9,7 @@ function Cart() {
   // 🔥 FETCH CART
   const fetchCart = async () => {
     try {
-      const res = await API.get("/cart", {
+      const res = await API.get("/api/cart", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
@@ -36,7 +36,7 @@ function Cart() {
 
     try {
       await API.post(
-        "/cart/update",
+        "/api/cart/update",
         {
           productId: item.product._id,
           action: type === "inc" ? "increase" : "decrease",
@@ -61,7 +61,7 @@ function Cart() {
 
     try {
       await API.post(
-        "/cart/remove",
+        "/api/cart/remove",
         { productId: item.product._id },
         {
           headers: {
@@ -77,7 +77,7 @@ function Cart() {
     }
   };
 
-  // 🔥 PLACE ORDER (FULL DEBUG FIX)
+  // 🔥 PLACE ORDER
   const handleOrder = async () => {
     try {
       if (!address.trim()) {
@@ -85,7 +85,7 @@ function Cart() {
       }
 
       const res = await API.post(
-        "/orders",
+        "/api/orders",
         { address },
         {
           headers: {
@@ -133,10 +133,8 @@ function Cart() {
         {cart.items.map((item) => (
           <div className="cart-item" key={item._id}>
 
-            {/* IMAGE */}
             <img src={item.product.image} alt="" />
 
-            {/* DETAILS */}
             <div className="cart-details">
 
               <h3>{item.product.name}</h3>
@@ -147,7 +145,6 @@ function Cart() {
                 FREE delivery available at checkout
               </p>
 
-              {/* QTY */}
               <div className="qty-box">
                 <button
                   onClick={() => {
@@ -168,14 +165,12 @@ function Cart() {
                 </button>
               </div>
 
-              {/* ACTIONS */}
               <div className="actions">
                 <span onClick={() => removeItem(item)}>Delete</span>
               </div>
 
             </div>
 
-            {/* PRICE */}
             <div className="price">
               ₹{item.product.price}
             </div>
@@ -183,12 +178,10 @@ function Cart() {
           </div>
         ))}
 
-        {/* SUBTOTAL */}
         <div className="subtotal">
           Subtotal ({cart.items.length} items): ₹{total}
         </div>
 
-        {/* ADDRESS */}
         <input
           type="text"
           placeholder="Enter delivery address"
@@ -203,7 +196,6 @@ function Cart() {
           }}
         />
 
-        {/* PLACE ORDER */}
         <div style={{ marginTop: "20px", textAlign: "right" }}>
           <button className="checkout-btn" onClick={handleOrder}>
             Place Order

@@ -6,44 +6,43 @@ function Login() {
   const [isSignup, setIsSignup] = useState(false);
 
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState(""); // optional
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const url = isSignup ? "/auth/register" : "/auth/login";
+    // 🔥 BASIC VALIDATION
+    if (!email || !password || (isSignup && !name)) {
+      return alert("Please fill all required fields");
+    }
 
+    try {
+      const url = isSignup ? "/api/auth/register" : "/api/auth/login";
+      // ✅ REMOVE AGE (important)
       const payload = isSignup
-        ? { name, age, email, password }
+        ? { name, email, password }
         : { email, password };
 
       const res = await API.post(url, payload);
 
-      console.log("LOGIN RESPONSE:", res.data);
+      console.log("✅ SUCCESS:", res.data);
 
       // ✅ SAVE TOKEN
       localStorage.setItem("token", res.data.token);
 
-      // ✅ HANDLE USER DATA SAFELY (VERY IMPORTANT)
-      const userData = res.data.user
-        ? res.data.user
-        : {
-            name: res.data.name,
-            email: res.data.email,
-            age: res.data.age,
-          };
+      // ✅ SAVE USER
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      // ✅ FORCE REDIRECT (NO BUGS)
+      // ✅ REDIRECT
       window.location.href = "/products";
 
     } catch (err) {
-      console.log("ERROR:", err.response?.data || err.message);
-      alert("Login/Signup failed");
+      console.log("❌ FULL ERROR:", err);
+      console.log("❌ RESPONSE:", err.response?.data);
+
+      alert(err.response?.data?.message || "Login/Signup failed ❌");
     }
   };
 
@@ -55,7 +54,6 @@ function Login() {
 
         <form onSubmit={handleSubmit}>
 
-          {/* SIGNUP EXTRA FIELDS */}
           {isSignup && (
             <>
               <input
@@ -63,13 +61,6 @@ function Login() {
                 className="login-input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-              />
-
-              <input
-                placeholder="Age"
-                className="login-input"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
               />
             </>
           )}

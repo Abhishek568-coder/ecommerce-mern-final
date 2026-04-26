@@ -1,15 +1,16 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://ecommerce-backend-urft.onrender.com"
 });
 
-// attach token automatically
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
+
   if (token) {
-    req.headers.Authorization = token;
+    req.headers.Authorization = token; // ✅ NO Bearer (your backend expects raw token)
   }
+
   return req;
 });
 
