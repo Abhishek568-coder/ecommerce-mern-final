@@ -6,7 +6,7 @@ function Login() {
   const [isSignup, setIsSignup] = useState(false);
 
   const [name, setName] = useState("");
-  const [age, setAge] = useState(""); // optional
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
