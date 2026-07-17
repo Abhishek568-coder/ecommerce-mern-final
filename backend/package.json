@@ -16,7 +16,9 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.4.1"
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.4.1",
+    "react-toastify": "^11.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

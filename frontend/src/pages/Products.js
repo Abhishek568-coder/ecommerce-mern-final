@@ -12,24 +12,65 @@ function Products() {
 
   const query = new URLSearchParams(location.search);
   const searchParam = query.get("search");
-  const cleanSearch = searchParam ? searchParam.toLowerCase().trim() : "";
+  const cleanSearch = searchParam
+    ? searchParam.toLowerCase().trim()
+    : "";
 
-  // 🔥 FETCH PRODUCTS
+  // HERO IMAGES
+  const banners = [
+    {
+      image:
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1400",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400",
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=1400",
+    },
+  ];
+
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  // FETCH PRODUCTS
   useEffect(() => {
     API.get("/api/products")
       .then((res) => {
         let data = [];
 
-        if (Array.isArray(res.data)) data = res.data;
-        else if (res.data.products) data = res.data.products;
-        else if (res.data.data) data = res.data.data;
+        if (Array.isArray(res.data)) {
+          data = res.data;
+        } else if (res.data.products) {
+          data = res.data.products;
+        } else if (res.data.data) {
+          data = res.data.data;
+        }
 
         setProducts(data);
       })
-      .catch((err) => console.log("❌ PRODUCTS ERROR:", err));
+      .catch((err) =>
+        console.log("PRODUCT ERROR:", err)
+      );
   }, []);
 
-  // 🔥 ADD TO CART (FINAL)
+  // AUTO SLIDER
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) =>
+        prev === banners.length - 1 ? 0 : prev + 1
+      );
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // ADD TO CART
   const addToCart = async (id) => {
     try {
       await API.post("/api/cart", {
@@ -37,27 +78,30 @@ function Products() {
         quantity: 1,
       });
 
-      setMessage("Added to cart ✅");
+      setMessage("Added to Cart ✅");
 
-      setTimeout(() => setMessage(""), 2000);
-
+      setTimeout(() => {
+        setMessage("");
+      }, 2000);
     } catch (err) {
-      console.log("❌ ADD TO CART ERROR:", err.response?.data || err);
+      console.log(err);
 
-      setMessage("Failed to add ❌");
+      setMessage("Failed to Add ❌");
 
-      setTimeout(() => setMessage(""), 2000);
+      setTimeout(() => {
+        setMessage("");
+      }, 2000);
     }
   };
 
-  // 🔥 FILTER
+  // FILTER PRODUCTS
   const filteredProducts = products.filter((p) => {
     const matchSearch = cleanSearch
       ? p.name?.toLowerCase().includes(cleanSearch)
       : true;
 
     const matchCategory = category
-      ? p.category?.toLowerCase().trim().includes(category)
+      ? p.category?.toLowerCase().trim() === category
       : true;
 
     return matchSearch && matchCategory;
@@ -65,40 +109,103 @@ function Products() {
 
   return (
     <div>
-
       {/* MESSAGE */}
       {message && (
-        <div style={{
-          position: "fixed",
-          top: "20px",
-          right: "20px",
-          background: "#222",
-          color: "#fff",
-          padding: "10px 15px",
-          borderRadius: "6px",
-          zIndex: 999
-        }}>
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            background: "#111",
+            color: "#fff",
+            padding: "12px 18px",
+            borderRadius: "10px",
+            zIndex: 999,
+          }}
+        >
           {message}
         </div>
       )}
 
-      {/* MENU */}
-      <div className="menu">
-        <span>All Sports</span>
-        <span>Men</span>
-        <span>Women</span>
-        <span>Kids</span>
-        <span>Fitness</span>
-        <span>Sale</span>
+      {/* HERO SECTION */}
+      <div
+        style={{
+          width: "100%",
+          height: "500px",
+          marginTop: "-80px",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        <img
+          src={banners[currentBanner].image}
+          alt="banner"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.2))",
+          }}
+        ></div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "60px",
+            transform: "translateY(-50%)",
+            color: "#fff",
+          }}
+        >
+          <h1 style={{ fontSize: "50px" }}>
+            APEX ATHLETICS
+          </h1>
+
+          <p style={{ fontSize: "22px" }}>
+            Premium Sports Equipment &
+            Activewear
+          </p>
+        </div>
+
+        {/* DOTS */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            gap: "10px",
+          }}
+        >
+          {banners.map((_, index) => (
+            <span
+              key={index}
+              onClick={() => setCurrentBanner(index)}
+              style={{
+                width: "12px",
+                height: "12px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                background:
+                  currentBanner === index
+                    ? "#fff"
+                    : "rgba(255,255,255,0.5)",
+              }}
+            ></span>
+          ))}
+        </div>
       </div>
 
-      {/* BANNER */}
-      <div className="banner">
-        <h2>UP TO ₹300 OFF</h2>
-        <p>Use Code: NC300</p>
-      </div>
-
-      {/* CATEGORY */}
+      {/* CATEGORIES */}
       <div className="categories">
         {[
           "",
@@ -112,33 +219,111 @@ function Products() {
         ].map((cat) => (
           <div
             key={cat}
-            className={`cat ${category === cat ? "active-cat" : ""}`}
+            className={`cat ${category === cat ? "active-cat" : ""
+              }`}
             onClick={() => setCategory(cat)}
           >
-            {cat === "" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+            {cat === ""
+              ? "All"
+              : cat.charAt(0).toUpperCase() +
+              cat.slice(1)}
           </div>
         ))}
       </div>
 
       {/* PRODUCTS */}
       <div className="products">
-        {filteredProducts.length === 0 ? (
-          <p style={{ padding: "20px" }}>No products found</p>
-        ) : (
-          filteredProducts.map((p) => (
-            <div key={p._id} className="card">
-              <img src={p.image} alt={p.name} />
-              <h3>{p.name}</h3>
-              <p className="price">₹{p.price}</p>
 
-              <button onClick={() => addToCart(p._id)}>
-                Add to Cart
-              </button>
-            </div>
-          ))
+        {filteredProducts.length === 0 ? (
+          <h2
+            style={{
+              padding: "30px",
+              textAlign: "center",
+            }}
+          >
+            No products found
+          </h2>
+        ) : (
+          filteredProducts.map((p) => {
+            const seed =
+              p._id
+                .split("")
+                .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+            const rating = (
+              4 + ((seed % 9) + 1) / 10
+            ).toFixed(1);
+
+            const reviews =
+              ((seed * 7) % 500) + 50;
+            return (
+              <div className="product-card" key={p._id}>
+
+                <div className="card-top">
+
+                  {/* <div className="wishlist">
+                  ♡
+                </div> */}
+
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="product-image"
+                  />
+
+                </div>
+
+                <div className="card-bottom">
+
+                  <h3>{p.name}</h3>
+
+                  <div className="product-tags">
+                    <span>{p.category}</span>
+                    <span>In Stock</span>
+                  </div>
+
+                  <p className="product-description">
+                    {p.description}
+                  </p>
+
+                  <div className="rating-row">
+                    <span className="stars">
+                      ⭐ {rating}
+                    </span>
+
+                    <span className="reviews">
+                      ({reviews} reviews)
+                    </span>
+                  </div>
+
+                  <div className="product-footer">
+
+                    <div>
+                      <p className="price-label">
+                        PRICE
+                      </p>
+
+                      <h2 className="product-price">
+                        ₹{p.price}
+                      </h2>
+                    </div>
+
+                    <button
+                      className="cart-btn"
+                      onClick={() => addToCart(p._id)}
+                    >
+                      Add to Cart
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+            );
+          })
         )}
       </div>
-
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import API from "../api";
 import "./login.css";
+import { toast } from "react-toastify";
 
 function Login() {
   const [isSignup, setIsSignup] = useState(false);
@@ -15,7 +16,7 @@ function Login() {
 
     // 🔥 BASIC VALIDATION
     if (!email || !password || (isSignup && !name)) {
-      return alert("Please fill all required fields");
+      return toast.success("Please fill all required fields");
     }
 
     try {
@@ -42,7 +43,7 @@ function Login() {
       console.log("❌ FULL ERROR:", err);
       console.log("❌ RESPONSE:", err.response?.data);
 
-      alert(err.response?.data?.message || "Login/Signup failed ❌");
+      toast.success(err.response?.data?.message || "Login/Signup failed ❌");
     }
   };
 

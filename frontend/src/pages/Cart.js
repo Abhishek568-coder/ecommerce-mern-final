@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api";
 import "./cart.css";
+import { toast } from "react-toastify";
 
 function Cart() {
   const [cart, setCart] = useState(null);
@@ -81,7 +82,12 @@ function Cart() {
   const handleOrder = async () => {
     try {
       if (!address.trim()) {
-        return alert("Please enter delivery address");
+          console.log("EMPTY ADDRESS");
+        toast.error("Please enter delivery address", {
+  position: "top-right",
+});
+        
+        return;
       }
 
       const res = await API.post(
@@ -96,7 +102,7 @@ function Cart() {
 
       console.log("✅ ORDER SUCCESS:", res.data);
 
-      alert("Order placed successfully ✅");
+      toast.success("Order placed successfully ✅");
 
       setAddress("");
       fetchCart();
@@ -105,7 +111,7 @@ function Cart() {
       console.log("❌ FULL ERROR:", err);
       console.log("❌ RESPONSE:", err.response?.data);
 
-      alert(err.response?.data?.message || "Order failed ❌");
+      toast.success(err.response?.data?.message || "Order failed ❌");
     }
   };
 

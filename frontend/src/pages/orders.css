@@ -89,3 +89,51 @@
   font-size: 14px;
   color: #555;
 }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .orders-container {
+    padding: 15px;
+  }
+
+  .orders-title {
+    font-size: 22px;
+  }
+
+  .order-card {
+    padding: 15px;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .order-img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .order-details h4 {
+    font-size: 14px;
+  }
+
+  .order-details p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-container {
+    padding: 10px;
+  }
+
+  .order-item {
+    gap: 10px;
+  }
+
+  .total {
+    font-size: 14px;
+  }
+}

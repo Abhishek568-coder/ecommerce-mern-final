@@ -1,25 +1,48 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
+  const isProductsPage = location.pathname === "/products";
 
   const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
-  const [open, setOpen] = useState(false); // dropdown
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
+    const params = new URLSearchParams(location.search);
+    const searchQuery = params.get("search");
+
+    if (searchQuery) {
+      setSearch(searchQuery);
+    } else {
+      setSearch("");
+    }
+  }, [location]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!search.trim()) return;
+
+    if (!search.trim()) {
+      navigate("/products");
+      return;
+    }
 
     navigate(`/products?search=${search}`);
+  };
+
+  const clearSearch = () => {
     setSearch("");
+    navigate("/products");
   };
 
   const handleLogout = () => {
@@ -29,61 +52,139 @@ function Navbar() {
     setUser(null);
     setOpen(false);
 
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (
-    <div className="navbar">
-
-      {/* LOGO */}
+    <div
+      className={`navbar ${isProductsPage
+          ? "navbar-home"
+          : "navbar-inner"
+        }`}
+    >
       <h2
-        className="logo"
+        className={`logo ${isProductsPage ? "logo-light" : "logo-dark"
+          }`}
         onClick={() => navigate("/products")}
-        style={{ cursor: "pointer" }}
       >
         APEX ATHLETICS
       </h2>
 
-      {/* SEARCH */}
-      <form className="search-form" onSubmit={handleSearch}>
-        <input
-          type="text"
-          className="search"
-          placeholder="Search for products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button type="submit" className="search-btn">🔍</button>
-      </form>
+      {isLoginPage ? (
 
-      {/* NAV */}
-      <div className="nav-links">
-        <Link to="/products">Products</Link>
-        <Link to="/cart">Cart</Link>
-        <Link to="/orders">Orders</Link>
+        <button
+          className="home-btn"
+          onClick={() => navigate("/products")}
+        >
+          ← Home
+        </button>
 
-        {!user ? (
-          <Link to="/login">Login</Link>
-        ) : (
-          <div className="user-menu">
-
-            <span
-              className="username"
-              onClick={() => setOpen(!open)}
-              style={{ cursor: "pointer" }}
+      ) : (
+        <>
+          {/* SEARCH */}
+          <form className="search-form" onSubmit={handleSearch}>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+              }}
             >
-              👋 {user.name}
-            </span>
+              <input
+                type="text"
+                className="search"
+                placeholder="Search for products..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+              />
 
-            {open && (
-              <div className="dropdown">
-                <span onClick={handleLogout}>Logout</span>
+              {search && (
+                <span
+                  onClick={clearSearch}
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "50%",
+                    transform:
+                      "translateY(-50%)",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                    color: "#777",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ✕
+                </span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="search-btn"
+            >
+              🔍
+            </button>
+          </form>
+
+          {/* NAVIGATION */}
+          <div className="nav-links">
+
+            <Link
+              className={isProductsPage ? "nav-light" : "nav-dark"}
+              to="/products"
+              onClick={clearSearch}
+            >
+              Products
+            </Link>
+
+            <Link
+              className={isProductsPage ? "nav-light" : "nav-dark"}
+              to="/cart"
+            >
+              Cart
+            </Link>
+
+            <Link
+              className={isProductsPage ? "nav-light" : "nav-dark"}
+              to="/orders"
+            >
+              Orders
+            </Link>
+
+            {!user ? (
+              <Link
+                className={isProductsPage ? "nav-light" : "nav-dark"}
+                to="/login"
+              >
+                Login
+              </Link>
+            ) : (
+              <div className="user-menu">
+
+                <span
+                  className={`username ${isProductsPage ? "nav-light" : "nav-dark"
+                    }`}
+                  onClick={() => setOpen(!open)}
+                >
+                  👋 {user.name}
+                </span>
+
+                {open && (
+                  <div className="dropdown">
+                    <span onClick={handleLogout}>
+                      Logout
+                    </span>
+                  </div>
+                )}
+
               </div>
             )}
 
           </div>
-        )}
-      </div>
+        </>
+      )}
+
     </div>
   );
 }

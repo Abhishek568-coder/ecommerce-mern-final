@@ -3,14 +3,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .login-box {
-  width: 350px;
+  width: 100%;
+  max-width: 350px;
   background: #fff;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .login-title {
@@ -26,6 +29,7 @@
   border-radius: 8px;
   border: 1px solid #ccc;
   outline: none;
+  box-sizing: border-box;
 }
 
 .login-input:focus {
@@ -45,4 +49,17 @@
 
 .login-btn:hover {
   background: #1d47b8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 15px;
+    height: auto;
+    min-height: 80vh;
+  }
+
+  .login-box {
+    padding: 20px;
+  }
 }
