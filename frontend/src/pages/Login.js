@@ -49,7 +49,7 @@ function Login() {
       console.log("❌ FULL ERROR:", err);
       console.log("❌ RESPONSE:", err.response?.data);
 
-      toast.error(err.response?.data?.message || "Login/Signup failed ❌");
+      toast.error(err.response?.data?.message || "Login/Signup failed");
     }
   };
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../api";
 import { isLoggedIn } from "../cartStorage";
+import LoginPrompt from "../components/LoginPrompt";
 import "./checkout.css";
 
 const PAYMENT_METHODS = [
@@ -52,6 +53,10 @@ function Checkout() {
 
   const [cart, setCart] = useState(null);
   const [placing, setPlacing] = useState(false);
+  const [needsLogin, setNeedsLogin] = useState(!isLoggedIn());
+  const [loginMessage, setLoginMessage] = useState(
+    "Please login to continue to checkout."
+  );
 
   const [form, setForm] = useState(EMPTY_ADDRESS);
   const [paymentMethod, setPaymentMethod] = useState("cod");
@@ -69,8 +74,7 @@ function Checkout() {
   // 🚪 Guard: checkout requires an account + prefill the known name/address
   useEffect(() => {
     if (!isLoggedIn()) {
-      toast.error("Please login to checkout.");
-      navigate("/login");
+      setNeedsLogin(true);
       return;
     }
 
@@ -97,9 +101,14 @@ function Checkout() {
         /* ignore bad JSON */
       }
     }
-  }, [navigate]);
+  }, []);
 
   const fetchCart = useCallback(async () => {
+    if (!isLoggedIn()) {
+      setNeedsLogin(true);
+      return;
+    }
+
     try {
       const res = await API.get("/api/cart");
       const items = (res.data.items || []).filter((item) => item.product);
@@ -108,8 +117,11 @@ function Checkout() {
       console.error("CHECKOUT CART ERROR:", err.response?.data || err);
 
       if (err.response?.status === 401) {
-        toast.error("Session expired. Please login again.");
-        navigate("/login");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setNeedsLogin(true);
+        setLoginMessage("Your session has expired. Please login again to checkout.");
         return;
       }
 
@@ -118,7 +130,7 @@ function Checkout() {
       );
       setCart({ items: [] });
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     fetchCart();
@@ -190,9 +202,9 @@ function Checkout() {
       // 2️⃣ online payment → mark the order as paid (simulated)
       if (paymentMethod !== "cod") {
         await API.put(`/api/payment/${order._id}`);
-        toast.success("Payment successful — order placed! ✅");
+        toast.success("Payment successful — order placed!");
       } else {
-        toast.success("Order placed successfully ✅");
+        toast.success("Order placed successfully");
       }
 
       // remember the address for the next order
@@ -201,13 +213,40 @@ function Checkout() {
       navigate("/orders");
     } catch (err) {
       console.error("PLACE ORDER ERROR:", err.response?.data || err);
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setNeedsLogin(true);
+        setLoginMessage("Your session has expired. Please login again to place your order.");
+        return;
+      }
+
       toast.error(
-        err.response?.data?.message || "Could not place the order ❌"
+        err.response?.data?.message || "Could not place the order"
       );
     } finally {
       setPlacing(false);
     }
   };
+
+  // 🔐 not logged in → friendly prompt instead of a dead end
+  if (needsLogin) {
+    return (
+      <div className="checkout-container">
+        <div className="checkout-box">
+          <LoginPrompt
+            title="Login to checkout"
+            message={loginMessage}
+            hint="Your bag will be waiting for you after you login."
+            continueTo="/cart"
+            continueLabel="Back to Bag"
+          />
+        </div>
+      </div>
+    );
+  }
 
   // ⏳ loading
   if (cart === null) {

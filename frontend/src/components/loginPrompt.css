@@ -1,0 +1,117 @@
+/* FRIENDLY LOGIN / AUTH REQUIRED CARD */
+
+.login-prompt {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 0 24px;
+}
+
+.login-prompt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 32px 26px;
+}
+
+.login-prompt-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #eef2fb;
+  color: #2a5bd7;
+  margin-bottom: 4px;
+}
+
+.login-prompt-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1c1f26;
+}
+
+.login-prompt-message {
+  margin: 0;
+  font-size: 15px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.login-prompt-hint {
+  margin: 0;
+  font-size: 13px;
+  color: #8a8f98;
+  line-height: 1.5;
+}
+
+.login-prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.login-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease, transform 0.15s ease;
+}
+
+.login-prompt-btn:hover {
+  transform: translateY(-1px);
+}
+
+.login-prompt-btn.primary {
+  background: #2a5bd7;
+  color: #fff;
+}
+
+.login-prompt-btn.primary:hover {
+  background: #1f49b0;
+}
+
+.login-prompt-btn.ghost {
+  background: #fff;
+  color: #2a5bd7;
+  border-color: #c9d6f5;
+}
+
+.login-prompt-btn.ghost:hover {
+  background: #f4f7fe;
+}
+
+@media (max-width: 480px) {
+  .login-prompt-card {
+    padding: 24px 18px;
+  }
+
+  .login-prompt-actions {
+    flex-direction: column;
+  }
+
+  .login-prompt-btn {
+    width: 100%;
+  }
+}

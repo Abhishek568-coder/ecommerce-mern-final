@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api";
+import LoginPrompt from "../components/LoginPrompt";
+import { isLoggedIn } from "../cartStorage";
 import "./orders.css";
 
 // 💰 pretty currency
@@ -27,12 +29,26 @@ const PAYMENT_LABELS = {
 };
 
 function Orders() {
+  const loggedIn = isLoggedIn();
+
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(loggedIn);
   const [error, setError] = useState("");
+  const [needsLogin, setNeedsLogin] = useState(!loggedIn);
+  const [loginMessage, setLoginMessage] = useState(
+    "Please login to view your orders."
+  );
 
   useEffect(() => {
+    // 🙅 guests never hit the protected endpoint — show the prompt instead
+    if (!isLoggedIn()) {
+      setNeedsLogin(true);
+      setLoading(false);
+      return;
+    }
+
     fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchOrders = async () => {
@@ -40,15 +56,22 @@ function Orders() {
     setError("");
 
     try {
-      const res = await API.get("/api/orders", {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-        },
-      });
+      const res = await API.get("/api/orders");
 
       setOrders(res.data || []);
     } catch (err) {
       console.log("❌ FETCH ORDERS ERROR:", err.response?.data || err);
+
+      // 🔐 expired / invalid session → offer a fresh login
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setNeedsLogin(true);
+        setLoginMessage("Your session has expired. Please login again to view your orders.");
+        return;
+      }
+
       setError(
         err.response?.data?.message || "Could not load your orders"
       );
@@ -69,6 +92,20 @@ function Orders() {
 
   const itemCount = (order) =>
     (order.items || []).reduce((acc, item) => acc + (item.quantity || 0), 0);
+
+  if (needsLogin) {
+    return (
+      <div className="orders-container">
+        <h2 className="orders-title">Your Orders</h2>
+
+        <LoginPrompt
+          title="Login to see your orders"
+          message={loginMessage}
+          hint="Your order history is linked to your account."
+        />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -73,6 +73,13 @@
   color: white;
   border-radius: 0 25px 25px 0;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear svg {
+  display: block;
 }
 
 /* NAV LINKS */
@@ -98,6 +105,9 @@
   cursor: pointer;
   font-weight: 600;
   color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* USER MENU */
@@ -140,9 +150,48 @@
   opacity: 0.7;
 }
 
-/* MOBILE */
+/* MOBILE — hamburger (hidden on desktop) */
 .hamburger {
   display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hamburger-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: #222;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.hamburger-dark .hamburger-bar {
+  background: #222;
+}
+
+.hamburger-light .hamburger-bar {
+  background: #fff;
+}
+
+/* animate into an X when open */
+.hamburger.is-open .hamburger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.is-open .hamburger-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.is-open .hamburger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 .mobile-overlay {
@@ -162,28 +211,79 @@
     flex: 1;
   }
 
+  .hamburger {
+    display: flex;
+    flex: 0 0 auto;
+    order: 2;
+  }
+
   .search-form {
     width: 100%;
     order: 3;
   }
 
-  /* keep all links on one row and scroll instead of overflowing */
+  /* links collapse into the hamburger menu */
   .nav-links {
-    gap: 14px;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    order: 4;
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   }
 
-  .nav-links::-webkit-scrollbar {
-    display: none;
+  .nav-links-open {
+    display: flex;
   }
 
   .nav-links a,
   .nav-links .username {
     white-space: nowrap;
     font-size: 14px;
+    padding: 11px 10px;
+    border-radius: 6px;
+  }
+
+  .nav-links a:hover {
+    background: #f5f7ff;
+  }
+
+  /* menu panel is always light, so force dark link text inside it */
+  .nav-links-open .nav-light,
+  .nav-links-open .username.nav-light {
+    color: #222 !important;
+  }
+
+  .nav-links-open .user-menu {
+    width: 100%;
+  }
+
+  .nav-links-open .username {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* dropdown sits inline under the username instead of floating away */
+  .nav-links-open .dropdown {
+    position: static;
+    box-shadow: none;
+    padding: 4px 10px 8px;
+    min-width: 0;
+    background: #f7f8fa;
+  }
+
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 999;
   }
 }
 
@@ -197,13 +297,10 @@
     font-size: 15px;
   }
 
-  .nav-links {
-    gap: 12px;
-  }
-
   .nav-links a,
   .nav-links .username {
     font-size: 13px;
+    padding: 10px 8px;
   }
 
   .search {
@@ -246,6 +343,9 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .home-btn:hover {

@@ -38,7 +38,8 @@
 }
 
 .admin-card-icon {
-  font-size: 22px;
+  display: flex;
+  align-items: center;
 }
 
 .admin-card-label {
@@ -65,7 +66,8 @@
 }
 
 .admin-error-icon {
-  font-size: 28px;
+  display: flex;
+  color: #b45309;
 }
 
 .admin-error p {
@@ -159,6 +161,17 @@
 
 .admin-order-meta strong.pay-paid {
   color: #16a34a;
+}
+
+.admin-order-meta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-order-meta span svg {
+  flex-shrink: 0;
+  color: #888;
 }
 
 .admin-order-meta strong.pay-due {

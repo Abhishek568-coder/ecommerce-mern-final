@@ -278,6 +278,9 @@
   color: #f4b400;
   font-weight: 600;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .reviews {

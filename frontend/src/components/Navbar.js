@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { Search, X, ArrowLeft, UserRound } from "lucide-react";
 import "./navbar.css";
 
 function Navbar() {
@@ -12,6 +13,7 @@ function Navbar() {
   const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const navRef = useRef(null);
@@ -71,6 +73,8 @@ function Navbar() {
     const params = new URLSearchParams(location.search);
     const searchQuery = params.get("search");
 
+    setMenuOpen(false);
+
     if (searchQuery) {
       setSearch(searchQuery);
     } else {
@@ -100,11 +104,13 @@ function Navbar() {
 
     setUser(null);
     setOpen(false);
+    setMenuOpen(false);
 
     navigate("/login");
   };
 
   return (
+    <>
     <div
       ref={navRef}
       className={`navbar ${isProductsPage
@@ -126,11 +132,26 @@ function Navbar() {
           className="home-btn"
           onClick={() => navigate("/")}
         >
-          ← Home
+          <ArrowLeft size={18} />
+          Home
         </button>
 
       ) : (
         <>
+          {/* MOBILE HAMBURGER */}
+          <button
+            type="button"
+            className={`hamburger ${menuOpen ? "is-open" : ""} ${lightText ? "hamburger-light" : "hamburger-dark"
+              }`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={menuOpen}
+          >
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+            <span className="hamburger-bar" />
+          </button>
+
           {/* SEARCH */}
           <form className="search-form" onSubmit={handleSearch}>
             <div
@@ -151,6 +172,7 @@ function Navbar() {
 
               {search && (
                 <span
+                  className="search-clear"
                   onClick={clearSearch}
                   style={{
                     position: "absolute",
@@ -159,12 +181,12 @@ function Navbar() {
                     transform:
                       "translateY(-50%)",
                     cursor: "pointer",
-                    fontSize: "18px",
+                    display: "flex",
+                    alignItems: "center",
                     color: "#777",
-                    fontWeight: "bold",
                   }}
                 >
-                  ✕
+                  <X size={16} />
                 </span>
               )}
             </div>
@@ -172,13 +194,14 @@ function Navbar() {
             <button
               type="submit"
               className="search-btn"
+              aria-label="Search"
             >
-              🔍
+              <Search size={18} />
             </button>
           </form>
 
           {/* NAVIGATION */}
-          <div className="nav-links">
+          <div className={`nav-links ${menuOpen ? "nav-links-open" : ""}`}>
 
             <Link
               className={lightText ? "nav-light" : "nav-dark"}
@@ -191,6 +214,7 @@ function Navbar() {
             <Link
               className={lightText ? "nav-light" : "nav-dark"}
               to="/cart"
+              onClick={() => setMenuOpen(false)}
             >
               Cart
             </Link>
@@ -198,6 +222,7 @@ function Navbar() {
             <Link
               className={lightText ? "nav-light" : "nav-dark"}
               to="/orders"
+              onClick={() => setMenuOpen(false)}
             >
               Orders
             </Link>
@@ -206,6 +231,7 @@ function Navbar() {
               <Link
                 className={lightText ? "nav-light" : "nav-dark"}
                 to="/login"
+                onClick={() => setMenuOpen(false)}
               >
                 Login
               </Link>
@@ -217,7 +243,8 @@ function Navbar() {
                     }`}
                   onClick={() => setOpen(!open)}
                 >
-                  👋 {user.name}
+                  <UserRound size={16} />
+                  {user.name}
                 </span>
 
                 {open && (
@@ -251,6 +278,14 @@ function Navbar() {
       )}
 
     </div>
+
+    {/* MOBILE OVERLAY — tapping it closes the menu.
+        It sits OUTSIDE the navbar so the navbar's
+        backdrop-filter can't trap the fixed positioning. */}
+    {menuOpen && (
+      <div className="mobile-overlay" onClick={() => setMenuOpen(false)} />
+    )}
+    </>
   );
 }
 

@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  UserRound,
+  Package,
+  ReceiptText,
+  Hourglass,
+  Wallet,
+  Lock,
+  CreditCard,
+  MapPin,
+} from "lucide-react";
 import API from "../api";
+import LoginPrompt from "../components/LoginPrompt";
+import { isLoggedIn } from "../cartStorage";
 import "./admin.css";
 
 const CARDS = [
-  { key: "users", label: "Users", icon: "👤", accent: "#2563eb" },
-  { key: "products", label: "Products", icon: "📦", accent: "#7c3aed" },
-  { key: "orders", label: "Orders", icon: "🧾", accent: "#0891b2" },
-  { key: "pendingOrders", label: "Pending", icon: "⏳", accent: "#d97706" },
-  { key: "revenue", label: "Revenue", icon: "💰", accent: "#16a34a", money: true },
+  { key: "users", label: "Users", icon: UserRound, accent: "#2563eb" },
+  { key: "products", label: "Products", icon: Package, accent: "#7c3aed" },
+  { key: "orders", label: "Orders", icon: ReceiptText, accent: "#0891b2" },
+  { key: "pendingOrders", label: "Pending", icon: Hourglass, accent: "#d97706" },
+  { key: "revenue", label: "Revenue", icon: Wallet, accent: "#16a34a", money: true },
 ];
 
 const ORDER_STATUSES = ["pending", "shipped", "delivered", "cancelled"];
@@ -35,8 +47,12 @@ function Admin() {
 
   const [stats, setStats] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isLoggedIn());
   const [error, setError] = useState("");
+  const [needsLogin, setNeedsLogin] = useState(!isLoggedIn());
+  const [loginMessage, setLoginMessage] = useState(
+    "Please login with an admin account to open the dashboard."
+  );
   const [savingId, setSavingId] = useState(null);
 
   const fetchDashboard = useCallback(async () => {
@@ -58,14 +74,17 @@ function Admin() {
       console.error("❌ ADMIN DASHBOARD ERROR:", message || err);
 
       if (status === 401) {
-        toast.error("Please login as an admin.");
-        navigate("/login");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setNeedsLogin(true);
+        setLoginMessage("Please login with an admin account to open the dashboard.");
         return;
       }
 
       if (status === 403) {
         setError(
-          "You don't have admin access. An admin needs to promote your account (see backend/makeAdmin.js)."
+          "You don't have admin access. An admin needs to promote your account."
         );
         return;
       }
@@ -75,9 +94,16 @@ function Admin() {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
+    // 🙅 don't hit admin endpoints without a session
+    if (!isLoggedIn()) {
+      setNeedsLogin(true);
+      setLoading(false);
+      return;
+    }
+
     fetchDashboard();
   }, [fetchDashboard]);
 
@@ -123,6 +149,21 @@ function Admin() {
     }
   };
 
+  // 🔐 no session → prompt for admin login
+  if (needsLogin) {
+    return (
+      <div className="admin-container">
+        <h1 className="admin-heading">Admin Dashboard</h1>
+
+        <LoginPrompt
+          title="Admin login required"
+          message={loginMessage}
+          hint="Only accounts with admin access can open this page."
+        />
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="admin-container">
@@ -138,7 +179,9 @@ function Admin() {
         <h1 className="admin-heading">Admin Dashboard</h1>
 
         <div className="admin-error">
-          <span className="admin-error-icon">🔒</span>
+          <span className="admin-error-icon">
+            <Lock size={28} />
+          </span>
           <p>{error}</p>
 
           <button className="admin-btn" onClick={() => navigate("/")}>
@@ -157,6 +200,7 @@ function Admin() {
       <div className="admin-cards">
         {CARDS.map((card) => {
           const value = stats?.[card.key] ?? 0;
+          const Icon = card.icon;
 
           return (
             <div
@@ -164,7 +208,12 @@ function Admin() {
               key={card.key}
               style={{ borderTopColor: card.accent }}
             >
-              <span className="admin-card-icon">{card.icon}</span>
+              <span
+                className="admin-card-icon"
+                style={{ color: card.accent }}
+              >
+                <Icon size={22} />
+              </span>
 
               <span className="admin-card-label">{card.label}</span>
 
@@ -220,14 +269,19 @@ function Admin() {
                   {/* META */}
                   <div className="admin-order-meta">
                     <span>
-                      👤 {order.user?.name || "Unknown"}
+                      <UserRound size={14} />
+                      {order.user?.name || "Unknown"}
                       {order.user?.email ? ` (${order.user.email})` : ""}
                     </span>
 
-                    <span>📦 {itemsTotal} item(s)</span>
+                    <span>
+                      <Package size={14} />
+                      {itemsTotal} item(s)
+                    </span>
 
                     <span>
-                      💳 {PAYMENT_LABELS[order.paymentMethod] || "COD"} —{" "}
+                      <CreditCard size={14} />
+                      {PAYMENT_LABELS[order.paymentMethod] || "COD"} —{" "}
                       <strong
                         className={
                           order.isPaid ? "pay-paid" : "pay-due"
@@ -239,7 +293,8 @@ function Admin() {
 
                     {address.addressLine && (
                       <span>
-                        📍 {address.addressLine}
+                        <MapPin size={14} />
+                        {address.addressLine}
                         {address.city ? `, ${address.city}` : ""}
                         {address.pincode ? ` - ${address.pincode}` : ""}
                         {address.phone ? ` · ${address.phone}` : ""}
@@ -262,7 +317,9 @@ function Admin() {
                               loading="lazy"
                             />
                           ) : (
-                            <span className="admin-order-item-noimg">📦</span>
+                            <span className="admin-order-item-noimg">
+                              <Package size={20} />
+                            </span>
                           )}
 
                           <span className="admin-order-item-name">

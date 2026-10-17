@@ -29,3 +29,63 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Toastify overrides to match site aesthetic */
+.Toastify__toast {
+  border-radius: 10px;
+  font-family: inherit;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eef1ff;
+}
+
+.Toastify__toast--success {
+  background: #f6fff9;
+  color: #0f7a3e;
+}
+
+.Toastify__toast--error {
+  background: #fff6f6;
+  color: #8a1c1c;
+}
+
+.Toastify__toast-body {
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.Toastify__progress-bar {
+  background: #2a5bd7;
+}
+
+.Toastify__close-button {
+  color: #555;
+}
+
+.toast-cart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast-cart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.toast-btn {
+  align-self: flex-start;
+  background: #2a5bd7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.toast-btn:hover {
+  opacity: 0.9;
+}

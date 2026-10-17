@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Star, ShoppingCart } from "lucide-react";
 import API from "../api";
 import { addToGuestCart, isLoggedIn } from "../cartStorage";
 import "./products.css";
@@ -30,6 +31,7 @@ function Products() {
   const [category, setCategory] = useState("");
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(location.search);
   const searchParam = query.get("search");
@@ -76,7 +78,26 @@ function Products() {
     // 🔥 GUEST → save to session (localStorage) cart, no login required
     if (!isLoggedIn()) {
       addToGuestCart(product, 1);
-      toast.success("Added to Cart ✅ (login to save it to your account)");
+      toast(
+        ({ closeToast }) => (
+          <div className="toast-cart">
+            <div className="toast-cart-row">
+              <ShoppingCart size={18} />
+              <span>Added to Cart (login to save it to your account)</span>
+            </div>
+            <button
+              className="toast-btn"
+              onClick={() => {
+                closeToast();
+                navigate("/cart");
+              }}
+            >
+              View Cart
+            </button>
+          </div>
+        ),
+        { autoClose: 4000 }
+      );
       return;
     }
 
@@ -86,7 +107,26 @@ function Products() {
         quantity: 1,
       });
 
-      toast.success("Added to Cart ✅");
+      toast(
+        ({ closeToast }) => (
+          <div className="toast-cart">
+            <div className="toast-cart-row">
+              <ShoppingCart size={18} />
+              <span>Added to Cart</span>
+            </div>
+            <button
+              className="toast-btn"
+              onClick={() => {
+                closeToast();
+                navigate("/cart");
+              }}
+            >
+              View Cart
+            </button>
+          </div>
+        ),
+        { autoClose: 4000 }
+      );
     } catch (err) {
       console.log("ADD TO CART ERROR:", err.response?.data || err);
 
@@ -96,7 +136,7 @@ function Products() {
         toast.error("Session expired. Please login again.");
       } else {
         toast.error(
-          err.response?.data?.message || "Failed to Add ❌"
+          err.response?.data?.message || "Failed to Add"
         );
       }
     }
@@ -229,7 +269,8 @@ function Products() {
 
                   <div className="rating-row">
                     <span className="stars">
-                      ⭐ {rating}
+                      <Star size={14} fill="currentColor" />
+                      {rating}
                     </span>
 
                     <span className="reviews">
