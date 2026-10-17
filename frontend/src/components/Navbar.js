@@ -1,16 +1,65 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
-  const isProductsPage = location.pathname === "/products";
+  const isProductsPage =
+    location.pathname === "/" || location.pathname === "/products";
 
   const [search, setSearch] = useState("");
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const navRef = useRef(null);
+
+  // ✨ Publish the real navbar height as --nav-h so sticky elements
+  // (like the category bar) can sit exactly under it on any screen size.
+  useEffect(() => {
+    const el = navRef.current;
+
+    if (!el) return;
+
+    const setNavHeight = () => {
+      document.documentElement.style.setProperty(
+        "--nav-h",
+        `${el.offsetHeight}px`
+      );
+    };
+
+    setNavHeight();
+
+    let observer;
+
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(setNavHeight);
+      observer.observe(el);
+    }
+
+    window.addEventListener("resize", setNavHeight);
+
+    return () => {
+      if (observer) observer.disconnect();
+      window.removeEventListener("resize", setNavHeight);
+    };
+  }, []);
+
+  // ✨ The products navbar floats transparently over the hero — once the
+  // page is scrolled it becomes a solid bar.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // white text only while it sits on top of the hero
+  const lightText = isProductsPage && !scrolled;
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -33,16 +82,16 @@ function Navbar() {
     e.preventDefault();
 
     if (!search.trim()) {
-      navigate("/products");
+      navigate("/");
       return;
     }
 
-    navigate(`/products?search=${search}`);
+    navigate(`/?search=${search}`);
   };
 
   const clearSearch = () => {
     setSearch("");
-    navigate("/products");
+    navigate("/");
   };
 
   const handleLogout = () => {
@@ -57,15 +106,16 @@ function Navbar() {
 
   return (
     <div
+      ref={navRef}
       className={`navbar ${isProductsPage
           ? "navbar-home"
           : "navbar-inner"
-        }`}
+        }${scrolled ? " navbar-scrolled" : ""}`}
     >
       <h2
-        className={`logo ${isProductsPage ? "logo-light" : "logo-dark"
+        className={`logo ${lightText ? "logo-light" : "logo-dark"
           }`}
-        onClick={() => navigate("/products")}
+        onClick={() => navigate("/")}
       >
         APEX ATHLETICS
       </h2>
@@ -74,7 +124,7 @@ function Navbar() {
 
         <button
           className="home-btn"
-          onClick={() => navigate("/products")}
+          onClick={() => navigate("/")}
         >
           ← Home
         </button>
@@ -131,22 +181,22 @@ function Navbar() {
           <div className="nav-links">
 
             <Link
-              className={isProductsPage ? "nav-light" : "nav-dark"}
-              to="/products"
+              className={lightText ? "nav-light" : "nav-dark"}
+              to="/"
               onClick={clearSearch}
             >
               Products
             </Link>
 
             <Link
-              className={isProductsPage ? "nav-light" : "nav-dark"}
+              className={lightText ? "nav-light" : "nav-dark"}
               to="/cart"
             >
               Cart
             </Link>
 
             <Link
-              className={isProductsPage ? "nav-light" : "nav-dark"}
+              className={lightText ? "nav-light" : "nav-dark"}
               to="/orders"
             >
               Orders
@@ -154,7 +204,7 @@ function Navbar() {
 
             {!user ? (
               <Link
-                className={isProductsPage ? "nav-light" : "nav-dark"}
+                className={lightText ? "nav-light" : "nav-dark"}
                 to="/login"
               >
                 Login
@@ -163,7 +213,7 @@ function Navbar() {
               <div className="user-menu">
 
                 <span
-                  className={`username ${isProductsPage ? "nav-light" : "nav-dark"
+                  className={`username ${lightText ? "nav-light" : "nav-dark"
                     }`}
                   onClick={() => setOpen(!open)}
                 >
@@ -172,7 +222,22 @@ function Navbar() {
 
                 {open && (
                   <div className="dropdown">
-                    <span onClick={handleLogout}>
+                    {user.role === "admin" && (
+                      <span
+                        className="dropdown-admin"
+                        onClick={() => {
+                          setOpen(false);
+                          navigate("/admin");
+                        }}
+                      >
+                        Admin Dashboard
+                      </span>
+                    )}
+
+                    <span
+                      className="dropdown-logout"
+                      onClick={handleLogout}
+                    >
                       Logout
                     </span>
                   </div>

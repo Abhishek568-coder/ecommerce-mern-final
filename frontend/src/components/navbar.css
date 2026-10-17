@@ -1,9 +1,10 @@
 /* NAVBAR */
-/* PRODUCTS PAGE */
+/* PRODUCTS PAGE — overlays the hero, so the page needs no top offset */
 .navbar-home {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
   z-index: 1000;
 
@@ -11,9 +12,18 @@
   justify-content: space-between;
   align-items: center;
 
-  padding: 20px 50px;
+  padding: 12px 40px;
 
   background: transparent;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* solid once the user scrolls past the hero */
+.navbar-home.navbar-scrolled {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* CART / ORDERS / LOGIN */
@@ -27,7 +37,7 @@
   justify-content: space-between;
   align-items: center;
 
-  padding: 20px 50px;
+  padding: 12px 40px;
 
   background: white;
   border-bottom: 1px solid #eee;
@@ -37,6 +47,8 @@
   color: white;
   cursor: pointer;
   font-weight: 700;
+  /* h2 default vertical margins were inflating the navbar height */
+  margin: 0;
 }
 
 /* SEARCH */
@@ -113,6 +125,17 @@
   font-weight: 500;
 }
 
+.dropdown span.dropdown-admin {
+  color: #111;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown span.dropdown-logout {
+  color: red;
+}
+
 .dropdown span:hover {
   opacity: 0.7;
 }
@@ -130,28 +153,57 @@
 
   .navbar {
     flex-wrap: wrap;
-    padding: 12px 15px;
-    gap: 10px;
+    padding: 10px 14px;
+    gap: 8px;
   }
 
   .logo {
-    font-size: 18px;
+    font-size: 17px;
     flex: 1;
   }
 
   .search-form {
     width: 100%;
+    order: 3;
   }
 
+  /* keep all links on one row and scroll instead of overflowing */
   .nav-links {
-    gap: 15px;
+    gap: 14px;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-links a,
+  .nav-links .username {
+    white-space: nowrap;
+    font-size: 14px;
   }
 }
 
 @media (max-width: 480px) {
 
+  .navbar {
+    padding: 8px 12px;
+  }
+
   .logo {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+
+  .nav-links a,
+  .nav-links .username {
+    font-size: 13px;
   }
 
   .search {

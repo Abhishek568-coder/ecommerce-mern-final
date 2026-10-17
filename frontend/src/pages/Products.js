@@ -5,6 +5,26 @@ import API from "../api";
 import { addToGuestCart, isLoggedIn } from "../cartStorage";
 import "./products.css";
 
+// HERO IMAGES (module level so the reference is stable)
+const BANNERS = [
+  {
+    image:
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1400",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400",
+  },
+  {
+    image:
+      "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=1400",
+  },
+];
+
 function Products() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("");
@@ -16,26 +36,6 @@ function Products() {
   const cleanSearch = searchParam
     ? searchParam.toLowerCase().trim()
     : "";
-
-  // HERO IMAGES
-  const banners = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1400",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=1400",
-    },
-  ];
 
   const [currentBanner, setCurrentBanner] = useState(0);
 
@@ -64,7 +64,7 @@ function Products() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) =>
-        prev === banners.length - 1 ? 0 : prev + 1
+        prev === BANNERS.length - 1 ? 0 : prev + 1
       );
     }, 4000);
 
@@ -116,80 +116,31 @@ function Products() {
   });
 
   return (
-    <div>
+    <div className="products-page">
       {/* HERO SECTION */}
-      <div
-        style={{
-          width: "100%",
-          height: "500px",
-          marginTop: "-80px",
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
+      <div className="hero">
         <img
-          src={banners[currentBanner].image}
+          src={BANNERS[currentBanner].image}
           alt="banner"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
+          className="hero-img"
         />
 
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.2))",
-          }}
-        ></div>
+        <div className="hero-overlay"></div>
 
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "60px",
-            transform: "translateY(-50%)",
-            color: "#fff",
-          }}
-        >
-          <h1 style={{ fontSize: "50px" }}>
-            APEX ATHLETICS
-          </h1>
+        <div className="hero-text">
+          <h1>APEX ATHLETICS</h1>
 
-          <p style={{ fontSize: "22px" }}>
-            Premium Sports Equipment &
-            Activewear
-          </p>
+          <p>Premium Sports Equipment &amp; Activewear</p>
         </div>
 
         {/* DOTS */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            gap: "10px",
-          }}
-        >
-          {banners.map((_, index) => (
+        <div className="hero-dots">
+          {BANNERS.map((_, index) => (
             <span
               key={index}
               onClick={() => setCurrentBanner(index)}
-              style={{
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                cursor: "pointer",
-                background:
-                  currentBanner === index
-                    ? "#fff"
-                    : "rgba(255,255,255,0.5)",
-              }}
+              className={`hero-dot ${currentBanner === index ? "active" : ""
+                }`}
             ></span>
           ))}
         </div>

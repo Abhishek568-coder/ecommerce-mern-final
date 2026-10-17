@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
 import {
@@ -17,13 +17,13 @@ function Cart() {
   const [cart, setCart] = useState(null);
 
   // Load guest cart
-  const loadGuestCart = () => {
+  const loadGuestCart = useCallback(() => {
     const items = getGuestCart().filter((item) => item.product);
     setCart({ items });
-  };
+  }, []);
 
   // Fetch cart from backend or local storage
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!isLoggedIn()) {
       loadGuestCart();
       return;
@@ -52,11 +52,11 @@ function Cart() {
         err.response?.data?.message || "Failed to load cart"
       );
     }
-  };
+  }, [loadGuestCart]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   // Update quantity
   const updateQty = async (item, type) => {

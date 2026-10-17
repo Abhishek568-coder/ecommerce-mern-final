@@ -11,6 +11,7 @@ const {
   getUsers,
   getOrders,
   getStats,
+  updateOrderStatus,
 } = require("../controllers/adminController");
 
 router.get(
@@ -25,6 +26,14 @@ router.get(
   authMiddleware,
   adminMiddleware,
   getOrders
+);
+
+// 🔄 update an order's status / payment state
+router.put(
+  "/orders/:id",
+  authMiddleware,
+  adminMiddleware,
+  updateOrderStatus
 );
 
 router.get(

@@ -12,6 +12,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* 🔥 App shell: navbar + page fill the viewport without any page
+   forcing `100vh` (which used to add 70px of extra height and scroll). */
+:root {
+  /* real navbar height, published by Navbar.js (fallback for first paint) */
+  --nav-h: 64px;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

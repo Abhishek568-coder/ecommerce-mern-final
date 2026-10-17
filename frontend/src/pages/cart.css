@@ -1,12 +1,21 @@
 
 /* Page wrapper */
 .cart-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 24px 70px;
+  padding: 28px 24px 44px;
 }
 
 .cart-box {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background: #fff;
 }
 
@@ -67,20 +76,25 @@
 
 /* Main two-column layout */
 .cart-layout {
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(250px, 0.9fr);
   gap: 28px;
-  align-items: start;
 }
 
 .cart-products {
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Only the item list scrolls — header and summary stay in place */
+/* Only the item list scrolls — header and summary stay in place.
+   Height comes from the flex layout, so no viewport math is needed. */
 .cart-items-scroll {
-  max-height: calc(100vh - 250px);
-  min-height: 200px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 8px;
   scrollbar-width: thin;
@@ -190,6 +204,7 @@
 
 /* Order summary */
 .cart-summary {
+  align-self: start;
   position: sticky;
   top: 20px;
   padding: 22px;
@@ -291,19 +306,26 @@
 }
 
 @media (max-width: 768px) {
-  .cart-layout {
-    grid-template-columns: 1fr;
+  .cart-container {
+    padding: 18px 14px 36px;
   }
 
   /* On small screens let the page scroll normally */
+  .cart-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .cart-items-scroll {
-    max-height: none;
+    flex: none;
     min-height: 0;
+    max-height: none;
     overflow: visible;
     padding-right: 0;
   }
 
   .cart-summary {
+    align-self: stretch;
     position: static;
   }
 }
@@ -313,6 +335,8 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
+    gap: 12px;
+    padding: 16px 0;
   }
 
   .cart-item img {

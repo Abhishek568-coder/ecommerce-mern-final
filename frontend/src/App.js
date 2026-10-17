@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
@@ -13,13 +13,18 @@ function App() {
       <Navbar />   {/* 🔥 ADD THIS */}
 
       <Routes>
-        <Route path="/" element={<Navigate to="/products" replace />} />
+        {/* Products is now the homepage */}
+        <Route path="/" element={<Products />} />
+
         <Route
           path="/admin"
           element={<Admin />}
         />
         <Route path="/login" element={<Login />} />
+
+        {/* keep /products working as an alias for old links/bookmarks */}
         <Route path="/products" element={<Products />} />
+
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orders" element={<Orders />} />

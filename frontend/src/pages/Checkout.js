@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import API from "../api";
@@ -99,7 +99,7 @@ function Checkout() {
     }
   }, [navigate]);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       const res = await API.get("/api/cart");
       const items = (res.data.items || []).filter((item) => item.product);
@@ -118,11 +118,11 @@ function Checkout() {
       );
       setCart({ items: [] });
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   const update = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -230,7 +230,7 @@ function Checkout() {
             <p>Add a few products before checking out.</p>
             <button
               className="back-to-bag"
-              onClick={() => navigate("/products")}
+              onClick={() => navigate("/")}
             >
               Continue Shopping
             </button>

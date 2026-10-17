@@ -13,6 +13,9 @@ const REQUIRED_ADDRESS_FIELDS = [
 
 const PAYMENT_METHODS = ["cod", "upi", "card", "netbanking"];
 
+// allowed order statuses (must match the Order model)
+const ORDER_STATUSES = ["pending", "shipped", "delivered", "cancelled"];
+
 // ✅ CREATE ORDER
 exports.createOrder = async (req, res) => {
   try {
@@ -128,6 +131,7 @@ exports.getOrders = async (req, res) => {
 };
 
 // ✅ UPDATE ORDER STATUS (ADMIN ONLY)
+// NOTE: the admin dashboard uses PUT /api/admin/orders/:id instead.
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -140,6 +144,12 @@ exports.updateOrderStatus = async (req, res) => {
 
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Admin only" });
+    }
+
+    if (!ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({
+        message: `Status must be one of: ${ORDER_STATUSES.join(", ")}`,
+      });
     }
 
     order.status = status;

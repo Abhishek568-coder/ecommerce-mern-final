@@ -1,31 +1,82 @@
 /* PAGE */
 .orders-container {
-  padding: 30px;
+  flex: 1;
+  padding: 28px;
   background: #f3f3f3;
-  min-height: 100vh;
 }
 
 /* TITLE */
 .orders-title {
   font-size: 28px;
-  margin-bottom: 20px;
+  margin: 0 0 20px;
+  color: #1c1f26;
+}
+
+/* empty / loading / error text */
+.orders-message {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  color: #666;
+  margin: 0;
+}
+
+.orders-message-error {
+  color: #b02a37;
+  background: #f8d7da;
+}
+
+/* ---------------------------------------------------------------
+   ORDER LIST
+   Large screens: keep a comfortable reading width and lay the
+   cards out two-up so a wide monitor isn't one endless column.
+   --------------------------------------------------------------- */
+.orders-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 /* ORDER CARD */
 .order-card {
-  background: white;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 /* HEADER */
 .order-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
   align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 4px;
+}
+
+.order-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.order-id {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1c1f26;
+}
+
+.order-date {
+  font-size: 13px;
+  color: #888;
 }
 
 /* STATUS BADGE */
@@ -35,6 +86,8 @@
   font-size: 13px;
   font-weight: bold;
   text-transform: capitalize;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* STATUS COLORS */
@@ -48,52 +101,168 @@
   color: #155724;
 }
 
-/* TOTAL */
-.total {
-  font-weight: bold;
-  font-size: 16px;
+.status.delivered {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.status.cancelled {
+  background: #f8d7da;
+  color: #842029;
 }
 
 /* ITEMS */
 .order-items {
   display: flex;
   flex-direction: column;
-  gap: 15px;
 }
 
 /* SINGLE ITEM */
 .order-item {
   display: flex;
-  gap: 15px;
   align-items: center;
-  border-top: 1px solid #eee;
-  padding-top: 10px;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item-media {
+  flex-shrink: 0;
 }
 
 /* IMAGE */
 .order-img {
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
+  background: #eef1f6;
+  display: block;
 }
 
-/* DETAILS */
-.order-details h4 {
+.order-img-empty {
+  background: linear-gradient(135deg, #dfe4ee, #eef1f6);
+}
+
+/* grows so the price column stays right-aligned */
+.order-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-item-info h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-item-price {
   margin: 0;
-  font-size: 16px;
+  font-size: 13px;
+  color: #777;
 }
 
-.order-details p {
-  margin: 3px 0;
+.order-item-qty {
+  color: #999;
+}
+
+.order-item-total {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1c1f26;
+  text-align: right;
+}
+
+/* FOOTER — items / payment / total */
+.order-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+
+.order-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-meta-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #999;
+}
+
+.order-meta-value {
   font-size: 14px;
-  color: #555;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* RESPONSIVE */
+.pay-state {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pay-state.paid {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.pay-state.unpaid {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* TOTAL */
+.order-total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: auto;
+  text-align: right;
+}
+
+.order-total-value {
+  font-weight: bold;
+  font-size: 18px;
+  color: #1c1f26;
+}
+
+/* ONE COLUMN on laptops / tablets */
+@media (max-width: 992px) {
+  .orders-list {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   PHONES
+   --------------------------------------------------------------- */
 @media (max-width: 768px) {
   .orders-container {
-    padding: 15px;
+    padding: 16px;
   }
 
   .orders-title {
@@ -104,36 +273,59 @@
     padding: 15px;
   }
 
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
   .order-img {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
   }
 
-  .order-details h4 {
+  .order-item-info h4 {
     font-size: 14px;
   }
 
-  .order-details p {
+  .order-item-price {
     font-size: 13px;
   }
 }
 
 @media (max-width: 480px) {
   .orders-container {
-    padding: 10px;
+    padding: 12px;
+  }
+
+  .orders-title {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .orders-list {
+    gap: 14px;
+  }
+
+  .order-card {
+    padding: 13px;
   }
 
   .order-item {
     gap: 10px;
+    padding: 11px 0;
   }
 
-  .total {
-    font-size: 14px;
+  /* let long names wrap on narrow screens instead of truncating */
+  .order-item-info h4 {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  .order-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .order-footer {
+    gap: 10px 14px;
+  }
+
+  .order-total-value {
+    font-size: 16px;
   }
 }

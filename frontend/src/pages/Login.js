@@ -31,17 +31,19 @@ function Login() {
 
       console.log("✅ SUCCESS:", res.data);
 
+      const user = res.data.user;
+
       // ✅ SAVE TOKEN
       localStorage.setItem("token", res.data.token);
 
       // ✅ SAVE USER
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("user", JSON.stringify(user));
 
       // ✅ MOVE THE GUEST (SESSION) CART INTO THE ACCOUNT
       await mergeGuestCart();
 
-      // ✅ REDIRECT
-      window.location.href = "/products";
+      // ✅ REDIRECT — admins land on the dashboard, users on the store
+      window.location.href = user?.role === "admin" ? "/admin" : "/";
 
     } catch (err) {
       console.log("❌ FULL ERROR:", err);
