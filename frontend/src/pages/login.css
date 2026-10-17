@@ -1,64 +1,107 @@
+/* ================= Login / Signup page =================
+   Matches the cart + checkout card layout (white card, 12px radius,
+   rounded button) with the brand-blue accent.
+   ======================================================= */
+
 .login-container {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  width: 100%;
+  padding: 28px 24px 44px;
 }
 
 .login-box {
   width: 100%;
-  max-width: 350px;
+  max-width: 400px;
   background: #fff;
-  padding: 30px;
+  border: 1px solid #dfe7fb;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
+  padding: 30px;
 }
 
 .login-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 22px;
+  text-align: center;
 }
 
 .login-input {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
+  border: 1px solid #c9d6f5;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  font: inherit;
+  font-size: 14px;
+  color: #111;
+  background: #fff;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .login-input:focus {
   border-color: #2a5bd7;
+  box-shadow: 0 0 0 3px rgba(42, 91, 215, 0.15);
 }
 
+.login-input::placeholder {
+  color: #aaa;
+}
+
+/* Primary action — same as .checkout-btn / .place-order-btn */
 .login-btn {
   width: 100%;
-  padding: 12px;
+  padding: 15px;
+  margin-top: 8px;
   background: #2a5bd7;
-  color: white;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: bold;
+  transition: background 0.15s ease;
 }
 
 .login-btn:hover {
   background: #1d47b8;
 }
 
+.login-switch {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.login-switch strong {
+  color: #2a5bd7;
+  font-weight: 600;
+}
+
+.login-switch:hover strong {
+  text-decoration: underline;
+}
+
 /* RESPONSIVE */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .login-container {
-    padding: 16px 14px 32px;
+    padding: 18px 14px 36px;
     align-items: flex-start;
   }
 
   .login-box {
-    padding: 20px;
+    padding: 22px;
+  }
+
+  .login-title {
+    font-size: 24px;
   }
 }

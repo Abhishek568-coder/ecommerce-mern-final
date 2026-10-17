@@ -1,4 +1,7 @@
-/* FRIENDLY LOGIN / AUTH REQUIRED CARD */
+/* ================= Login prompt (auth required) =================
+   Matches the cart / checkout card layout (white card, 12px radius,
+   pill buttons) with the brand-blue accent.
+   ================================================================ */
 
 .login-prompt {
   display: flex;
@@ -13,74 +16,71 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  padding: 32px 26px;
+  border: 1px solid #dfe7fb;
+  border-radius: 12px;
+  padding: 30px;
 }
 
 .login-prompt-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: #eef2fb;
   color: #2a5bd7;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .login-prompt-title {
-  margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  color: #1c1f26;
+  color: #111;
+  margin: 0;
 }
 
 .login-prompt-message {
   margin: 0;
   font-size: 15px;
-  color: #555;
+  color: #666;
   line-height: 1.5;
 }
 
 .login-prompt-hint {
   margin: 0;
   font-size: 13px;
-  color: #8a8f98;
+  color: #888;
   line-height: 1.5;
 }
 
 .login-prompt-actions {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
+  margin-top: 18px;
 }
 
+/* Primary — same as .checkout-btn / .place-order-btn */
 .login-prompt-btn {
+  width: 100%;
+  border: none;
+  border-radius: 30px;
+  padding: 15px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 20px;
-  border-radius: 9px;
-  border: 1px solid transparent;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease,
-    border-color 0.15s ease, transform 0.15s ease;
-}
-
-.login-prompt-btn:hover {
-  transform: translateY(-1px);
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .login-prompt-btn.primary {
@@ -89,29 +89,25 @@
 }
 
 .login-prompt-btn.primary:hover {
-  background: #1f49b0;
+  background: #1d47b8;
 }
 
+/* Secondary — same as .back-to-bag / .continue-shopping-btn */
 .login-prompt-btn.ghost {
+  padding: 13px;
   background: #fff;
+  border: 1px solid #2a5bd7;
   color: #2a5bd7;
-  border-color: #c9d6f5;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .login-prompt-btn.ghost:hover {
   background: #f4f7fe;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .login-prompt-card {
-    padding: 24px 18px;
-  }
-
-  .login-prompt-actions {
-    flex-direction: column;
-  }
-
-  .login-prompt-btn {
-    width: 100%;
+    padding: 22px;
   }
 }

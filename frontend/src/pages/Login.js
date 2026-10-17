@@ -57,7 +57,9 @@ function Login() {
     <div className="login-container">
       <div className="login-box">
 
-        <h2>{isSignup ? "Create Account" : "Welcome Back"}</h2>
+        <h2 className="login-title">
+          {isSignup ? "Create Account" : "Welcome Back"}
+        </h2>
 
         <form onSubmit={handleSubmit}>
 
@@ -94,13 +96,16 @@ function Login() {
 
         </form>
 
-        <p
-          style={{ marginTop: "15px", cursor: "pointer", color: "#2a5bd7" }}
-          onClick={() => setIsSignup(!isSignup)}
-        >
-          {isSignup
-            ? "Already have an account? Login"
-            : "Don't have an account? Sign Up"}
+        <p className="login-switch" onClick={() => setIsSignup(!isSignup)}>
+          {isSignup ? (
+            <>
+              Already have an account? <strong>Login</strong>
+            </>
+          ) : (
+            <>
+              Don't have an account? <strong>Sign Up</strong>
+            </>
+          )}
         </p>
 
       </div>
