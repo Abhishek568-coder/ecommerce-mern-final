@@ -28,7 +28,23 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
 
-    // 🔥 NEW FIELDS
+    // 🔥 DELIVERY DETAILS (moved out of the cart into checkout)
+    shippingAddress: {
+      fullName: { type: String, trim: true },
+      phone: { type: String, trim: true },
+      addressLine: { type: String, trim: true },
+      landmark: { type: String, trim: true, default: "" },
+      city: { type: String, trim: true },
+      state: { type: String, trim: true },
+      pincode: { type: String, trim: true },
+    },
+
+    // 🔥 PAYMENT
+    paymentMethod: {
+      type: String,
+      enum: ["cod", "upi", "card", "netbanking"],
+      default: "cod",
+    },
     isPaid: {
       type: Boolean,
       default: false,

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 import API from "../api";
+import { addToGuestCart, isLoggedIn } from "../cartStorage";
 import "./products.css";
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("");
-  const [message, setMessage] = useState("");
 
   const location = useLocation();
 
@@ -71,26 +72,33 @@ function Products() {
   }, []);
 
   // ADD TO CART
-  const addToCart = async (id) => {
+  const addToCart = async (product) => {
+    // 🔥 GUEST → save to session (localStorage) cart, no login required
+    if (!isLoggedIn()) {
+      addToGuestCart(product, 1);
+      toast.success("Added to Cart ✅ (login to save it to your account)");
+      return;
+    }
+
     try {
       await API.post("/api/cart", {
-        productId: id,
+        productId: product._id,
         quantity: 1,
       });
 
-      setMessage("Added to Cart ✅");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 2000);
+      toast.success("Added to Cart ✅");
     } catch (err) {
-      console.log(err);
+      console.log("ADD TO CART ERROR:", err.response?.data || err);
 
-      setMessage("Failed to Add ❌");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 2000);
+      if (err.response?.status === 401) {
+        // token missing/expired → fall back to the session cart
+        addToGuestCart(product, 1);
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error(
+          err.response?.data?.message || "Failed to Add ❌"
+        );
+      }
     }
   };
 
@@ -109,24 +117,6 @@ function Products() {
 
   return (
     <div>
-      {/* MESSAGE */}
-      {message && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            right: "20px",
-            background: "#111",
-            color: "#fff",
-            padding: "12px 18px",
-            borderRadius: "10px",
-            zIndex: 999,
-          }}
-        >
-          {message}
-        </div>
-      )}
-
       {/* HERO SECTION */}
       <div
         style={{
@@ -310,7 +300,7 @@ function Products() {
 
                     <button
                       className="cart-btn"
-                      onClick={() => addToCart(p._id)}
+                      onClick={() => addToCart(p)}
                     >
                       Add to Cart
                     </button>

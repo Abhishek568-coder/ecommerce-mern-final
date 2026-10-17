@@ -1,9 +1,57 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 
-// ✅ CREATE ORDER (FINAL FIX)
+// 🔒 required delivery fields
+const REQUIRED_ADDRESS_FIELDS = [
+  "fullName",
+  "phone",
+  "addressLine",
+  "city",
+  "state",
+  "pincode",
+];
+
+const PAYMENT_METHODS = ["cod", "upi", "card", "netbanking"];
+
+// ✅ CREATE ORDER
 exports.createOrder = async (req, res) => {
   try {
+    const { shippingAddress, paymentMethod = "cod" } = req.body;
+
+    // 🔥 NOTE: delivery details are now collected on the checkout screen
+    if (!shippingAddress || typeof shippingAddress !== "object") {
+      return res
+        .status(400)
+        .json({ message: "Delivery details are required" });
+    }
+
+    // validate address
+    const missing = REQUIRED_ADDRESS_FIELDS.filter(
+      (field) => !String(shippingAddress[field] || "").trim()
+    );
+
+    if (missing.length) {
+      return res.status(400).json({
+        message: `Missing delivery details: ${missing.join(", ")}`,
+      });
+    }
+
+    if (!/^[0-9]{10}$/.test(String(shippingAddress.phone).trim())) {
+      return res
+        .status(400)
+        .json({ message: "Phone number must be 10 digits" });
+    }
+
+    if (!/^[0-9]{6}$/.test(String(shippingAddress.pincode).trim())) {
+      return res
+        .status(400)
+        .json({ message: "Pincode must be 6 digits" });
+    }
+
+    if (!PAYMENT_METHODS.includes(paymentMethod)) {
+      return res.status(400).json({ message: "Invalid payment method" });
+    }
+
     const cart = await Cart.findOne({ user: req.user.id })
       .populate("items.product");
 
@@ -36,10 +84,23 @@ exports.createOrder = async (req, res) => {
       items: cleanItems,
       totalPrice,
       status: "pending",
+      shippingAddress: {
+        fullName: String(shippingAddress.fullName).trim(),
+        phone: String(shippingAddress.phone).trim(),
+        addressLine: String(shippingAddress.addressLine).trim(),
+        landmark: String(shippingAddress.landmark || "").trim(),
+        city: String(shippingAddress.city).trim(),
+        state: String(shippingAddress.state).trim(),
+        pincode: String(shippingAddress.pincode).trim(),
+      },
+      paymentMethod,
+      // COD stays unpaid until delivery; online methods are marked
+      // paid by PUT /api/payment/:id
+      isPaid: false,
+      paymentStatus: "pending",
     });
 
-    // 🔥 ALSO CLEAN CART (remove broken ones permanently)
-    cart.items = validItems;
+    // 🔥 CLEAR CART
     cart.items = [];
     await cart.save();
 

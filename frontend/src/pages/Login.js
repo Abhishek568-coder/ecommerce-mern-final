@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API from "../api";
+import { mergeGuestCart } from "../cartStorage";
 import "./login.css";
 import { toast } from "react-toastify";
 
@@ -16,7 +17,7 @@ function Login() {
 
     // 🔥 BASIC VALIDATION
     if (!email || !password || (isSignup && !name)) {
-      return toast.success("Please fill all required fields");
+      return toast.error("Please fill all required fields");
     }
 
     try {
@@ -36,6 +37,9 @@ function Login() {
       // ✅ SAVE USER
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      // ✅ MOVE THE GUEST (SESSION) CART INTO THE ACCOUNT
+      await mergeGuestCart();
+
       // ✅ REDIRECT
       window.location.href = "/products";
 
@@ -43,7 +47,7 @@ function Login() {
       console.log("❌ FULL ERROR:", err);
       console.log("❌ RESPONSE:", err.response?.data);
 
-      toast.success(err.response?.data?.message || "Login/Signup failed ❌");
+      toast.error(err.response?.data?.message || "Login/Signup failed ❌");
     }
   };
 

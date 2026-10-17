@@ -1,29 +1,56 @@
+
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
+import {
+  getGuestCart,
+  isLoggedIn,
+  removeFromGuestCart,
+  updateGuestCartQty,
+} from "../cartStorage";
 import "./cart.css";
 import { toast } from "react-toastify";
 
 function Cart() {
-  const [cart, setCart] = useState(null);
-  const [address, setAddress] = useState("");
+  const navigate = useNavigate();
 
-  // 🔥 FETCH CART
+  const [cart, setCart] = useState(null);
+
+  // Load guest cart
+  const loadGuestCart = () => {
+    const items = getGuestCart().filter((item) => item.product);
+    setCart({ items });
+  };
+
+  // Fetch cart from backend or local storage
   const fetchCart = async () => {
+    if (!isLoggedIn()) {
+      loadGuestCart();
+      return;
+    }
+
     try {
-      const res = await API.get("/api/cart", {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-        },
-      });
+      const res = await API.get("/api/cart");
 
       const cleanItems = (res.data.items || []).filter(
         (item) => item.product
       );
 
       setCart({ ...res.data, items: cleanItems });
-
     } catch (err) {
-      console.log("❌ FETCH CART ERROR:", err.response?.data || err);
+      console.error("FETCH CART ERROR:", err.response?.data || err);
+
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        loadGuestCart();
+        return;
+      }
+
+      toast.error(
+        err.response?.data?.message || "Failed to load cart"
+      );
     }
   };
 
@@ -31,183 +58,233 @@ function Cart() {
     fetchCart();
   }, []);
 
-  // 🔥 UPDATE QTY
+  // Update quantity
   const updateQty = async (item, type) => {
     if (!item.product) return;
 
-    try {
-      await API.post(
-        "/api/cart/update",
-        {
-          productId: item.product._id,
-          action: type === "inc" ? "increase" : "decrease",
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
+    if (!isLoggedIn()) {
+      updateGuestCartQty(
+        item.product._id,
+        type === "inc" ? "increase" : "decrease"
       );
+      loadGuestCart();
+      return;
+    }
 
-      fetchCart();
+    try {
+      await API.post("/api/cart/update", {
+        productId: item.product._id,
+        action: type === "inc" ? "increase" : "decrease",
+      });
 
+      await fetchCart();
     } catch (err) {
-      console.log("❌ UPDATE QTY ERROR:", err.response?.data || err);
+      console.error("UPDATE QTY ERROR:", err.response?.data || err);
+      toast.error(
+        err.response?.data?.message || "Failed to update quantity"
+      );
     }
   };
 
-  // 🔥 DELETE ITEM
+  // Remove item
   const removeItem = async (item) => {
     if (!item.product) return;
 
+    if (!isLoggedIn()) {
+      removeFromGuestCart(item.product._id);
+      loadGuestCart();
+      toast.success("Item removed from bag");
+      return;
+    }
+
     try {
-      await API.post(
-        "/api/cart/remove",
-        { productId: item.product._id },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      );
+      await API.post("/api/cart/remove", {
+        productId: item.product._id,
+      });
 
-      fetchCart();
-
+      await fetchCart();
+      toast.success("Item removed from bag");
     } catch (err) {
-      console.log("❌ REMOVE ITEM ERROR:", err.response?.data || err);
+      console.error("REMOVE ITEM ERROR:", err.response?.data || err);
+      toast.error(
+        err.response?.data?.message || "Failed to remove item"
+      );
     }
   };
 
-  // 🔥 PLACE ORDER
-  const handleOrder = async () => {
-    try {
-      if (!address.trim()) {
-          console.log("EMPTY ADDRESS");
-        toast.error("Please enter delivery address", {
-  position: "top-right",
-});
-        
-        return;
-      }
-
-      const res = await API.post(
-        "/api/orders",
-        { address },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      );
-
-      console.log("✅ ORDER SUCCESS:", res.data);
-
-      toast.success("Order placed successfully ✅");
-
-      setAddress("");
-      fetchCart();
-
-    } catch (err) {
-      console.log("❌ FULL ERROR:", err);
-      console.log("❌ RESPONSE:", err.response?.data);
-
-      toast.success(err.response?.data?.message || "Order failed ❌");
+  // Proceed to checkout (delivery details + payment live there now)
+  const goToCheckout = () => {
+    if (!isLoggedIn()) {
+      toast.error("Please login to checkout.");
+      navigate("/login");
+      return;
     }
+
+    navigate("/checkout");
   };
 
-  // 🔥 EMPTY
-  if (!cart || !cart.items || cart.items.length === 0) {
-    return <h2 style={{ padding: "20px" }}>Your cart is empty</h2>;
+  // Loading state
+  if (cart === null) {
+    return (
+      <div className="cart-container">
+        <div className="cart-box">
+          <p>Loading your bag...</p>
+        </div>
+      </div>
+    );
   }
 
-  // 🔥 TOTAL
+  // Calculate subtotal
   const total = cart.items.reduce((acc, item) => {
-    return acc + item.product.price * item.quantity;
+    return acc + Number(item.product.price) * item.quantity;
   }, 0);
 
   return (
     <div className="cart-container">
       <div className="cart-box">
 
-        <h2 className="cart-title">Shopping Cart</h2>
-
-        <div className="cart-header">
-          <span></span>
-          <span>Price</span>
+        {/* Header */}
+        <div className="cart-page-header">
+          <h2 className="cart-title">Bag</h2>
+          <span>{cart.items.length} items</span>
         </div>
 
-        {cart.items.map((item) => (
-          <div className="cart-item" key={item._id}>
+        <div className="cart-layout">
 
-            <img src={item.product.image} alt="" />
+          {/* Left: Cart items */}
+          <section className="cart-products">
+            {/* <div className="shipping-notice">
+              <strong>Not in a hurry?</strong>
+              <p>Select free shipping at checkout.</p>
+            </div> */}
 
-            <div className="cart-details">
-
-              <h3>{item.product.name}</h3>
-
-              <p className="stock">In stock</p>
-
-              <p className="delivery">
-                FREE delivery available at checkout
-              </p>
-
-              <div className="qty-box">
+            {cart.items.length === 0 ? (
+              <div className="empty-cart">
+                <h3>Your bag is empty.</h3>
+                <p>Looks like you haven't added anything yet.</p>
                 <button
-                  onClick={() => {
-                    if (item.quantity === 1) {
-                      removeItem(item);
-                    } else {
-                      updateQty(item, "dec");
-                    }
-                  }}
+                  className="continue-shopping-btn"
+                  onClick={() => navigate("/")}
                 >
-                  -
-                </button>
-
-                <span>{item.quantity}</span>
-
-                <button onClick={() => updateQty(item, "inc")}>
-                  +
+                  Continue Shopping
                 </button>
               </div>
+            ) : (
+              <div className="cart-items-scroll">
+                {cart.items.map((item) => (
+                  <div
+                    className="cart-item"
+                    key={item._id || item.product._id}
+                  >
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                    />
 
-              <div className="actions">
-                <span onClick={() => removeItem(item)}>Delete</span>
+                    <div className="cart-details">
+                      <h3>{item.product.name}</h3>
+
+                      <p className="product-category">
+                        {item.product.category || "Product"}
+                      </p>
+
+                      <p className="stock">In stock</p>
+
+                      <p className="delivery">
+                        Free shipping available at checkout
+                      </p>
+
+                      <div className="qty-box">
+                        <button
+                          onClick={() => {
+                            if (item.quantity === 1) {
+                              removeItem(item);
+                            } else {
+                              updateQty(item, "dec");
+                            }
+                          }}
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+
+                        <span>{item.quantity}</span>
+
+                        <button
+                          onClick={() => updateQty(item, "inc")}
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      <div className="actions">
+                        <button onClick={() => removeItem(item)}>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="price">
+                      ₹{(
+                        Number(item.product.price) * item.quantity
+                      ).toLocaleString("en-IN")}
+                    </div>
+                  </div>
+                ))}
               </div>
+            )}
 
+            {/* Delivery details now collected on the checkout screen */}
+          </section>
+
+          {/* Right: Order summary */}
+          <aside className="cart-summary">
+            <h2>Summary</h2>
+
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <span>₹{total.toLocaleString("en-IN")}</span>
             </div>
 
-            <div className="price">
-              ₹{item.product.price}
+            <div className="summary-row">
+              <span>Estimated Shipping</span>
+              <span>Free</span>
             </div>
 
-          </div>
-        ))}
+            <div className="summary-row">
+              <span>Estimated Tax</span>
+              <span>Calculated at checkout</span>
+            </div>
 
-        <div className="subtotal">
-          Subtotal ({cart.items.length} items): ₹{total}
+            <div className="summary-total">
+              <strong>Total</strong>
+              <strong>₹{total.toLocaleString("en-IN")}</strong>
+            </div>
+
+            {!isLoggedIn() && (
+              <p className="guest-notice">
+                Shopping as a guest. Login to checkout.
+              </p>
+            )}
+
+            <button
+              className="checkout-btn"
+              onClick={goToCheckout}
+              disabled={cart.items.length === 0}
+            >
+              Proceed to Checkout
+            </button>
+
+            <button
+              className="continue-shopping-btn"
+              onClick={() => navigate("/")}
+            >
+              Continue Shopping
+            </button>
+          </aside>
+
         </div>
-
-        <input
-          type="text"
-          placeholder="Enter delivery address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginTop: "20px",
-            borderRadius: "6px",
-            border: "1px solid #ccc"
-          }}
-        />
-
-        <div style={{ marginTop: "20px", textAlign: "right" }}>
-          <button className="checkout-btn" onClick={handleOrder}>
-            Place Order
-          </button>
-        </div>
-
       </div>
     </div>
   );
